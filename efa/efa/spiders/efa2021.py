@@ -37,9 +37,6 @@ class Efa2021Spider(scrapy.Spider):
     # yield scrapy.Request statement above
     def parse_session(self, response):
         
-        if DEBUG_SESSION_NUMBER and not re.search(DEBUG_SESSION_NUMBER, response.url):
-            return
-
         # Loop over every paper division
         for paper_div in response.xpath('//div [@class="paper"]'):
 
