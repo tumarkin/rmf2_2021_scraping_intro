@@ -47,18 +47,40 @@ class Efa2021Spider(scrapy.Spider):
                 breakpoint()
 
             # Get the title
+            title = self.get_title(paper_div)
+            if title is None:
+                continue
+
+            authors = get_authors(paper_div)
+            affiliations = get_affiliations(paper_div)
+
+            
+
+
+
+            # Construct a dictionary with our data
+            paper = { 'title': title,
+                      'authors': authors,
+                      'affiliations': affiliations}
+
+            # Send this data back to scrapy
+            yield paper
+           
+
+	def get_title(self, paper_div):
             # The .// means search only in this division. // would go back from the division to the whole doc.
+            
             title = paper_div.xpath('.//p [@class="paper_title"]/text()').extract()
 
             # Stop processing this paper_div and "continue" with the next paper_div
             if len(title) == 0:
-                continue
-                
-            title = title[0].strip()
+                return None
+            else:
+                return title[0].strip()
 
-            # Get the authors
+        def get_authors(self, paper_div):
+             # Get the authors
             author_html = paper_div.xpath('.//p [@class="paper_author"]').extract()
-            breakpoint()
             author_html = w3lib.html.remove_tags(author_html[0])
 
             authors = []
@@ -77,12 +99,12 @@ class Efa2021Spider(scrapy.Spider):
                 # Things in parentheses are available for extraction
                 m = re.match("([^\d]+)(\d*)", author_str)
 
-                if m is None:
-                    breakpoint()
-
                 author = { 'name': m[1], 'affiliation': m[2] }
                 authors.append(author)
 
+            return authors
+
+	def get_affiliations(self, paper_div):
             # Process the affiliations to make them nice
             raw_affiliations = paper_div.xpath('.//p [@class="paper_organisation"]/text()').extract()
             affiliations = []
@@ -92,12 +114,4 @@ class Efa2021Spider(scrapy.Spider):
                 aff = aff.strip()
                 affiliations.append(aff)
 
-            # Construct a dictionary with our data
-            paper = { 'title': title,
-                      'authors': authors,
-                      'affiliations': affiliations}
-
-            # Send this data back to scrapy
-            yield paper
-           
-                
+            return affiliations
