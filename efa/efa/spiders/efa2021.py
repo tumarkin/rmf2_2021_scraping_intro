@@ -32,7 +32,6 @@ class Efa2021Spider(scrapy.Spider):
                 # Tell Scrapy that we want to scrape this session page
                 yield scrapy.Request(url=link.url, callback=self.parse_session)
 
-
     # This is called by scrapy due to the callbath parameter in the
     # yield scrapy.Request statement above
     def parse_session(self, response):
@@ -58,30 +57,26 @@ class Efa2021Spider(scrapy.Spider):
 
             # Send this data back to scrapy
             yield paper
-           
-
         
-	def get_title(self, paper_div):
+    def get_title(self, paper_div):
             # The .// means search only in this division. // would go back from the division to the whole doc.
-            
             title = paper_div.xpath('.//p [@class="paper_title"]/text()').extract()
-
+    
             # Stop processing this paper_div and "continue" with the next paper_div
             if len(title) == 0:
                 return None
             else:
                 return title[0].strip()
-
+    
         def get_authors(self, paper_div):
-             # Get the authors
             author_html = paper_div.xpath('.//p [@class="paper_author"]').extract()
             author_html = w3lib.html.remove_tags(author_html[0])
-
+    
             authors = []
             for author_str in author_html.split(','):
                 # Get rid of leading and trailing spaces
                 author_str = author_str.strip()
-
+    
                 # Regular expressions are FUN
                 # [^\d]: Anything that's not a number
                 # +: 1 or more
@@ -92,13 +87,13 @@ class Efa2021Spider(scrapy.Spider):
                 #
                 # Things in parentheses are available for extraction
                 m = re.match("([^\d]+)(\d*)", author_str)
-
+    
                 author = { 'name': m[1], 'affiliation': m[2] }
                 authors.append(author)
-
+    
             return authors
-
-	def get_affiliations(self, paper_div):
+    
+    def get_affiliations(self, paper_div):
             # Process the affiliations to make them nice
             raw_affiliations = paper_div.xpath('.//p [@class="paper_organisation"]/text()').extract()
             affiliations = []
@@ -107,5 +102,5 @@ class Efa2021Spider(scrapy.Spider):
                 aff = aff.replace('\'', '')
                 aff = aff.strip()
                 affiliations.append(aff)
-
+    
             return affiliations
