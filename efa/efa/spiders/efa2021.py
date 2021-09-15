@@ -53,11 +53,7 @@ class Efa2021Spider(scrapy.Spider):
 
             authors = get_authors(paper_div)
             affiliations = get_affiliations(paper_div)
-
             
-
-
-
             # Construct a dictionary with our data
             paper = { 'title': title,
                       'authors': authors,
@@ -67,6 +63,7 @@ class Efa2021Spider(scrapy.Spider):
             yield paper
            
 
+        
 	def get_title(self, paper_div):
             # The .// means search only in this division. // would go back from the division to the whole doc.
             
